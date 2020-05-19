@@ -3,61 +3,54 @@
         <img src="https://cdn.croct.io/brand/logo/repo-icon-green.svg" alt="Croct" height="80"/>
     </a>
     <br />
-    <strong>TypeScript Project Title</strong>
+    <strong>Google Analytics Plugin</strong>
     <br />
-    A brief description about the project.
+    A <a href="https://github.com/croct-tech/plug-js">PlugJS</a> plugin for exporting events to Google Analytics.
 </p>
 <p align="center">
-    <img alt="Language" src="https://img.shields.io/badge/language-TypeScript-blue" />
-    <img alt="Build" src="https://img.shields.io/badge/build-passing-green" />
-    <img alt="Coverage" src="https://img.shields.io/badge/coverage-100%25-green" />
-    <img alt="Maintainability" src="https://img.shields.io/badge/maintainability-100-green" />
+    <a href="https://www.npmjs.com/package/@croct/plug-google-analytics"><img alt="Version" src="https://img.shields.io/npm/v/@croct/plug-google-analytics" /></a>
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/actions?query=workflow%3AValidations"><img alt="Build" src="https://github.com/croct-tech/plug-google-analytics-js/workflows/Validations/badge.svg" /></a>
+    <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/maintainability" /></a>
+    <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/test_coverage"><img alt="Coverage" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/test_coverage" /></a>
     <br />
     <br />
-    <a href="https://github.com/croct-tech/repository-template-typescript/releases">📦Releases</a>
-        ·
-        <a href="https://github.com/croct-tech/repository-template-typescript/issues/new?labels=bug&template=bug-report.md">🐞Report Bug</a>
-        ·
-        <a href="https://github.com/croct-tech/repository-template-typescript/issues/new?labels=enhancement&template=feature-request.md">✨Request Feature</a>
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/releases">📦Releases</a>
+    ·
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/issues/new?labels=bug&template=bug-report.md">🐞Report Bug</a>
+    ·
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/issues/new?labels=enhancement&template=feature-request.md">✨Request Feature</a>
 </p>
 
-# Instructions
-Follow the steps below to create a new repository:
-
-1. Customize the repository
-   1. Click on the _Use this template_ button at the top of this page
-   2. Clone the repository locally 
-   3. Update the `README.md` and `package.json` with the new package information
-2. Setup Code Climate
-   1. Add the project to [Croct's code climate organization](https://codeclimate.com/accounts/5e714648faaa9c00fb000081/dashboard)
-   2. Go to **Repo Settings > Test coverage** and copy the "_TEST REPORTER ID_"
-   3. Go to **Repo Settings > Badges** and copy the maintainability and coverage badges to the `README.md` 
-   4. On the Github repository page, go to **Settings > Secrets** and add a secret with name `CC_TEST_REPORTER_ID` and the ID from the previous step as value
-3. Setup Github tokens
-   1. Get the GitHub and NPM token from the Croct's password manager.
-   2. On the Github repository page, go to **Settings > Secrets** and add a secret with name `GH_TOKEN` and `NPM_TOKEN` using the GitHub and NPM tokens from the previous step.
-   
 ## Installation
-Use the package manage [NPM](https://getcomposer.org) to install the package:
+
+The recommended way to install this plugin is using NPM. It pairs nicely with module bundlers such as Rollup, Webpack or Browserify and includes Typescript typings.
+
+Run the following command to install the latest version:
 
 ```sh
-npm install croct/project-ts
+npm install @croct/plug-google-analytics
 ```
 
 ## Basic usage
 
 ```typescript
-import {Example} from '@croct/project-ts';
+import croct from '@croct/plug';
+// Install the plugin
+import '@croct/plug-google-analytics';
 
-const example = new Example();
-example.displayBasicUsage();
+croct.plug({
+    appId: '<APP_ID>',
+    plugins: {
+        googleAnalytics: {},
+    }
+});
 ```
 
 ## Contributing
 Contributions to the package are always welcome! 
 
-- Report any bugs or issues on the [issue tracker](https://github.com/croct-tech/project-ts/issues).
-- For major changes, please [open an issue](https://github.com/croct-tech/project-ts/issues) first to discuss what you would like to change.
+- Report any bugs or issues on the [issue tracker](https://github.com/croct-tech/plug-google-analytics-js/issues).
+- For major changes, please [open an issue](https://github.com/croct-tech/plug-google-analytics-js/issues) first to discuss what you would like to change.
 - Please make sure to update tests as appropriate.
 
 ## Testing
@@ -91,16 +84,9 @@ npm install
 Then, to build the CommonJS module:
 
 ```sh
-npm run rollup
+npm run build
 ```
 
-The following command bundles a minified IIFE module for browsers:
+## Copyright Notice
 
-```
-npm run rollup-min
-```
-
-## License
-Copyright © 2015-2020 Croct Limited, All Rights Reserved.
-
-All information contained herein is, and remains the property of Croct Limited. The intellectual, design and technical concepts contained herein are proprietary to Croct Limited s and may be covered by U.S. and Foreign Patents, patents in process, and are protected by trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is obtained from Croct Limited.
+This project is released under the [MIT License](LICENSE).
