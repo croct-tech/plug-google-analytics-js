@@ -10,8 +10,8 @@
 <p align="center">
     <a href="https://www.npmjs.com/package/@croct/plug-google-analytics"><img alt="Version" src="https://img.shields.io/npm/v/@croct/plug-google-analytics" /></a>
     <a href="https://github.com/croct-tech/plug-google-analytics-js/actions?query=workflow%3AValidations"><img alt="Build" src="https://github.com/croct-tech/plug-google-analytics-js/workflows/Validations/badge.svg" /></a>
-    <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/maintainability" /></a>
-    <a href="https://codeclimate.com/repos/5ec316febbe94901a2004112/test_coverage"><img alt="Coverage" src="https://api.codeclimate.com/v1/badges/e44b079b623b649bd907/test_coverage" /></a>
+    <a href="https://codeclimate.com/repos/5ec4422d224b7501a000afbc/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/2da784570594f1f11c56/maintainability" /></a>
+    <a href="https://codeclimate.com/repos/5ec4422d224b7501a000afbc/test_coverage"><img alt="Coverage" src="https://api.codeclimate.com/v1/badges/2da784570594f1f11c56/test_coverage" /></a>
     <br />
     <br />
     <a href="https://github.com/croct-tech/plug-google-analytics-js/releases">📦Releases</a>
