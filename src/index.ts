@@ -8,9 +8,7 @@ declare module '@croct/plug/plug' {
     }
 }
 
-const PLUGIN_NAME = 'googleAnalytics';
-
-croct.extend(PLUGIN_NAME, ({options, sdk}: PluginArguments<Options>) => {
+croct.extend('googleAnalytics', ({options, sdk}: PluginArguments<Options>) => {
     optionsSchema.validate(options);
 
     return new GoogleAnalyticsPlugin(
