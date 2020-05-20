@@ -19,8 +19,6 @@ jest.mock('../src/plugin', () => {
     };
 });
 
-jest.mock('../src/plugin');
-
 describe('A Google Analytics plugin installer', () => {
     test('should register the plugin', () => {
         expect(croct.extend).toBeCalledWith('googleAnalytics', expect.anything());
