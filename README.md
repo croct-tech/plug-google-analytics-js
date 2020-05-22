@@ -39,7 +39,6 @@ import croct from '@croct/plug';
 import '@croct/plug-google-analytics';
 
 croct.plug({
-    appId: '<APP_ID>',
     plugins: {
         googleAnalytics: {},
     }
