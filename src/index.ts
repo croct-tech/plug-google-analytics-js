@@ -4,11 +4,11 @@ import GoogleAnalyticsPlugin, {Options, optionsSchema} from './plugin';
 
 declare module '@croct/plug/plug' {
     export interface PluginConfigurations {
-        googleAnalytics?: Options;
+        googleAnalytics?: Partial<Options> | boolean;
     }
 }
 
-croct.extend('googleAnalytics', ({options, sdk}: PluginArguments<Options>) => {
+croct.extend('googleAnalytics', ({options, sdk}: PluginArguments<Partial<Options>>) => {
     optionsSchema.validate(options);
 
     return new GoogleAnalyticsPlugin(
