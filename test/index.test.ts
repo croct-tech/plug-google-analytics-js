@@ -8,6 +8,7 @@ jest.mock('@croct/plug', () => ({
     default: {
         extend: jest.fn(),
     },
+    __esModule: true,
 }));
 
 jest.mock('../src/plugin', () => {
@@ -16,6 +17,7 @@ jest.mock('../src/plugin', () => {
     return {
         ...actual,
         default: jest.fn(),
+        __esModule: true,
     };
 });
 
