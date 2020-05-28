@@ -63,6 +63,22 @@ describe('A Google Analytics plugin installer', () => {
             {category: ''},
             "Expected at least 1 character at path '/category', actual 0.",
         ],
+        [
+            {events: ''},
+            "Expected value of type object at path '/events', actual string.",
+        ],
+        [
+            {events: {1: true}},
+            "Unknown property '/events/1'.",
+        ],
+        [
+            {events: {foo: true}},
+            "Unknown property '/events/foo'.",
+        ],
+        [
+            {events: {testGroupAssigned: 1}},
+            "Expected value of type boolean at path '/events/testGroupAssigned', actual integer.",
+        ],
     ])('should reject options %p', (options: any, error: string) => {
         const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
 

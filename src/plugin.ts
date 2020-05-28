@@ -1,13 +1,17 @@
 import {Logger} from '@croct/plug/sdk';
+import {EventType} from '@croct/plug/sdk/event';
 import {EventInfo, Tracker} from '@croct/plug/sdk/tracking';
-import {ObjectType, StringType} from '@croct/plug/sdk/validation';
+import {ObjectType, StringType, BooleanType} from '@croct/plug/sdk/validation';
 import {Plugin} from '@croct/plug/plugin';
 
 type Send = (command: string, hitType: string, category: string, action: string, label: string, value?: number) => {};
 
+type ListenedEvent = Extract<EventType, 'testGroupAssigned' | 'goalCompleted' | 'eventOccurred'>
+
 export type Options = {
     variable: string,
     category: string,
+    events?: {[key in ListenedEvent]?: boolean},
 }
 
 export const optionsSchema = new ObjectType({
@@ -18,6 +22,13 @@ export const optionsSchema = new ObjectType({
         category: new StringType({
             minLength: 1,
         }),
+        events: new ObjectType({
+            properties: {
+                testGroupAssigned: new BooleanType(),
+                goalCompleted: new BooleanType(),
+                eventOccurred: new BooleanType(),
+            },
+        }),
     },
 });
 
@@ -26,10 +37,14 @@ export default class GoogleAnalyticsPlugin implements Plugin {
 
     private readonly logger: Logger;
 
-    private readonly options: Options;
+    private readonly options: Required<Options>;
 
     public constructor(options: Options, tracker: Tracker, logger: Logger) {
-        this.options = options;
+        this.options = {
+            ...options,
+            events: options.events ?? {},
+        };
+
         this.tracker = tracker;
         this.logger = logger;
         this.track = this.track.bind(this);
@@ -44,7 +59,7 @@ export default class GoogleAnalyticsPlugin implements Plugin {
     }
 
     private track({event, status}: EventInfo): void {
-        if (status !== 'confirmed') {
+        if (status !== 'confirmed' || this.options.events[event.type as ListenedEvent] === false) {
             return;
         }
 
