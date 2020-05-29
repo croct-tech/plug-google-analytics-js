@@ -34,7 +34,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@croct/plug": "0.2.2",
+    "@croct/plug": "^0.3.0",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
