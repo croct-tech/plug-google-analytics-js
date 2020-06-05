@@ -21,8 +21,16 @@ jest.mock('../src/plugin', () => {
     };
 });
 
+beforeEach(() => {
+    (GoogleAnalyticsPlugin as jest.Mock).mockReset();
+});
+
+afterEach(() => {
+    jest.restoreAllMocks();
+});
+
 describe('A Google Analytics plugin installer', () => {
-    test('should register the plugin', () => {
+    test('should register the plugin with default options', () => {
         expect(croct.extend).toBeCalledWith('googleAnalytics', expect.anything());
 
         const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
@@ -40,9 +48,38 @@ describe('A Google Analytics plugin installer', () => {
         const options: Options = {
             variable: 'ga',
             category: 'Croct',
+            events: {},
         };
 
         expect(GoogleAnalyticsPlugin).toBeCalledTimes(1);
+        expect(GoogleAnalyticsPlugin).toBeCalledWith(options, tracker, logger);
+    });
+
+    test('should register the plugin with the provided options', () => {
+        expect(croct.extend).toBeCalledWith('googleAnalytics', expect.anything());
+
+        const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
+
+        const tracker = createTrackerMock();
+        const logger = createLoggerMock();
+
+        const sdk: Partial<PluginSdk> = {
+            tracker: tracker,
+            getLogger: () => logger,
+        };
+
+        const options: Options = {
+            variable: 'foo',
+            category: 'bar',
+            events: {
+                eventOccurred: false,
+                goalCompleted: false,
+                testGroupAssigned: false,
+            },
+        };
+
+        factory({options: options, sdk: sdk as PluginSdk});
+
         expect(GoogleAnalyticsPlugin).toBeCalledWith(options, tracker, logger);
     });
 

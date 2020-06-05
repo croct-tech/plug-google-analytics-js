@@ -29,6 +29,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'analytics',
             category: 'Croct',
+            events: {},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -136,6 +137,7 @@ describe('A Google Analytics plugin', () => {
             const options: Options = {
                 variable: 'analytics',
                 category: 'foo',
+                events: {},
             };
 
             const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -264,6 +266,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'analytics',
             category: 'Croct',
+            events: {},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -303,6 +306,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'analytics',
             category: 'foo',
+            events: {},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -351,6 +355,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'bar',
             category: 'foo',
+            events: {},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);

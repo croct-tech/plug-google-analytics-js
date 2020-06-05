@@ -11,7 +11,7 @@ type ListenedEvent = Extract<EventType, 'testGroupAssigned' | 'goalCompleted' | 
 export type Options = {
     variable: string,
     category: string,
-    events?: {[key in ListenedEvent]?: boolean},
+    events: {[key in ListenedEvent]?: boolean},
 }
 
 export const optionsSchema = new ObjectType({
@@ -40,11 +40,7 @@ export default class GoogleAnalyticsPlugin implements Plugin {
     private readonly options: Required<Options>;
 
     public constructor(options: Options, tracker: Tracker, logger: Logger) {
-        this.options = {
-            ...options,
-            events: options.events ?? {},
-        };
-
+        this.options = options;
         this.tracker = tracker;
         this.logger = logger;
         this.track = this.track.bind(this);
