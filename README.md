@@ -14,11 +14,11 @@
     <a href="https://codeclimate.com/repos/5ec4422d224b7501a000afbc/test_coverage"><img alt="Coverage" src="https://api.codeclimate.com/v1/badges/2da784570594f1f11c56/test_coverage" /></a>
     <br />
     <br />
-    <a href="https://github.com/croct-tech/plug-google-analytics-js/releases">📦Releases</a>
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/releases">📦 Releases</a>
     ·
-    <a href="https://github.com/croct-tech/plug-google-analytics-js/issues/new?labels=bug&template=bug-report.md">🐞Report Bug</a>
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/issues/new?labels=bug&template=bug-report.md">🐞 Report Bug</a>
     ·
-    <a href="https://github.com/croct-tech/plug-google-analytics-js/issues/new?labels=enhancement&template=feature-request.md">✨Request Feature</a>
+    <a href="https://github.com/croct-tech/plug-google-analytics-js/issues/new?labels=enhancement&template=feature-request.md">✨ Request Feature</a>
 </p>
 
 ## Installation
@@ -40,7 +40,17 @@ import '@croct/plug-google-analytics';
 
 croct.plug({
     plugins: {
-        googleAnalytics: {},
+        googleAnalytics: {
+            variable: 'analytics',
+            category: 'Croct',
+            events: {
+                eventOccurred: true,
+                testGroupAssigned: false,
+            },
+            customEvents: {
+                customEventName: true,
+            },
+        },
     }
 });
 ```
