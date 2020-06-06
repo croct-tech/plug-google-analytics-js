@@ -41,7 +41,6 @@ import '@croct/plug-google-analytics';
 croct.plug({
     plugins: {
         googleAnalytics: {
-            variable: 'analytics',
             category: 'Croct',
             events: {
                 eventOccurred: true,
