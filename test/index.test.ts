@@ -76,11 +76,60 @@ describe('A Google Analytics plugin installer', () => {
                 goalCompleted: false,
                 testGroupAssigned: false,
             },
+            customEvents: {
+                foo: true,
+                bar: true,
+            },
         };
 
         factory({options: options, sdk: sdk as PluginSdk});
 
         expect(GoogleAnalyticsPlugin).toBeCalledWith(options, tracker, logger);
+    });
+
+    test.each<[any]>([
+        [
+            {},
+        ],
+        [
+            {variable: 'foo'},
+        ],
+        [
+            {category: 'foo'},
+        ],
+        [
+            {events: {}},
+        ],
+        [
+            {events: {eventOccurred: true}},
+        ],
+        [
+            {customEvents: {}},
+        ],
+        [
+            {customEvents: {foo: true}},
+        ],
+        [
+            {
+                variable: 'foo',
+                category: 'bar',
+                events: {eventOccurred: true},
+                customEvents: {someName: true},
+            },
+        ],
+    ])('should accept options %p', (options: any) => {
+        const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];
+
+        const sdk: Partial<PluginSdk> = {
+            tracker: createTrackerMock(),
+            getLogger: () => createLoggerMock(),
+        };
+
+        function create(): void {
+            factory({options: options, sdk: sdk as PluginSdk});
+        }
+
+        expect(create).not.toThrowError();
     });
 
     test.each<[any, string]>([
@@ -115,6 +164,14 @@ describe('A Google Analytics plugin installer', () => {
         [
             {events: {testGroupAssigned: 1}},
             "Expected value of type boolean at path '/events/testGroupAssigned', actual integer.",
+        ],
+        [
+            {customEvents: ''},
+            "Expected value of type object at path '/customEvents', actual string.",
+        ],
+        [
+            {customEvents: {foo: 1}},
+            "Expected value of type boolean at path '/customEvents/foo', actual integer.",
         ],
     ])('should reject options %p', (options: any, error: string) => {
         const [, factory]: [string, PluginFactory] = (croct.extend as jest.Mock).mock.calls[0];

@@ -3,6 +3,7 @@ import {EventType} from '@croct/plug/sdk/event';
 import {EventInfo, Tracker} from '@croct/plug/sdk/tracking';
 import {ObjectType, StringType, BooleanType} from '@croct/plug/sdk/validation';
 import {Plugin} from '@croct/plug/plugin';
+import {Event} from '@croct/sdk/event';
 
 type Send = (command: string, hitType: string, category: string, action: string, label: string, value?: number) => {};
 
@@ -12,6 +13,7 @@ export type Options = {
     variable: string,
     category: string,
     events: {[key in ListenedEvent]?: boolean},
+    customEvents?: {[key: string]: boolean},
 }
 
 export const optionsSchema = new ObjectType({
@@ -29,6 +31,9 @@ export const optionsSchema = new ObjectType({
                 eventOccurred: new BooleanType(),
             },
         }),
+        customEvents: new ObjectType({
+            additionalProperties: new BooleanType(),
+        }),
     },
 });
 
@@ -37,7 +42,7 @@ export default class GoogleAnalyticsPlugin implements Plugin {
 
     private readonly logger: Logger;
 
-    private readonly options: Required<Options>;
+    private readonly options: Options;
 
     public constructor(options: Options, tracker: Tracker, logger: Logger) {
         this.options = options;
@@ -55,7 +60,7 @@ export default class GoogleAnalyticsPlugin implements Plugin {
     }
 
     private track({event, status}: EventInfo): void {
-        if (status !== 'confirmed' || this.options.events[event.type as ListenedEvent] === false) {
+        if (status !== 'confirmed' || !this.isWhitelisted(event)) {
             return;
         }
 
@@ -99,6 +104,24 @@ export default class GoogleAnalyticsPlugin implements Plugin {
                 break;
             }
         }
+    }
+
+    private isWhitelisted(event: Event): boolean {
+        const {events, customEvents} = {...this.options, events: this.options.events ?? {}};
+
+        if (event.type !== 'eventOccurred') {
+            return events[event.type as ListenedEvent] === true;
+        }
+
+        if (events.eventOccurred !== true) {
+            return false;
+        }
+
+        if (customEvents === undefined) {
+            return events.eventOccurred === true;
+        }
+
+        return customEvents[event.name] === true;
     }
 
     private send(action: string, label: string, value?: number): void {

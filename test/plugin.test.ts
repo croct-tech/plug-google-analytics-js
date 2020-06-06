@@ -14,6 +14,32 @@ afterEach(() => {
     jest.restoreAllMocks();
 });
 
+const FOO_EVENT: EventInfo = {
+    context: {
+        tabId: 'tab-id',
+        url: 'http://analytics.com',
+    },
+    event: {
+        type: 'eventOccurred',
+        name: 'foo',
+    },
+    timestamp: 0,
+    status: 'confirmed',
+};
+
+const BAR_EVENT: EventInfo = {
+    context: {
+        tabId: 'tab-id',
+        url: 'http://analytics.com',
+    },
+    event: {
+        type: 'eventOccurred',
+        name: 'bar',
+    },
+    timestamp: 1,
+    status: 'confirmed',
+};
+
 describe('A Google Analytics plugin', () => {
     test('should use the default variable and category to track events if they are not specified', async () => {
         const analytics = jest.spyOn(window as any, 'analytics');
@@ -29,7 +55,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'analytics',
             category: 'Croct',
-            events: {},
+            events: {goalCompleted: true},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -54,6 +80,85 @@ describe('A Google Analytics plugin', () => {
 
         expect(logger.debug).toHaveBeenCalledWith('Event "goalCompleted" sent to Google Analytics.');
         expect(analytics).toHaveBeenCalledWith('send', 'event', 'Croct', 'goalCompleted', 'goalId: someGoal', 1.2);
+    });
+
+    test.each<[Event]>([
+        [
+            {
+                type: 'goalCompleted',
+                goalId: 'someGoal',
+            },
+        ],
+        [
+            {
+                type: 'goalCompleted',
+                goalId: 'someGoal',
+                value: 1.2,
+                currency: 'BRL',
+            },
+        ],
+        [
+            {
+                type: 'testGroupAssigned',
+                testId: 'someTest',
+                groupId: 'someGroup',
+            },
+        ],
+        [
+            {
+                type: 'eventOccurred',
+                name: 'personalizationApplied',
+                personalizationId: 'someId',
+                audience: 'some-audience',
+                testId: 'someTest',
+                groupId: 'someGroup',
+                details: {
+                    foo: 'bar',
+                },
+            },
+        ],
+        [
+            {
+                type: 'eventOccurred',
+                name: 'personalizationApplied',
+                personalizationId: 'someId',
+                details: {
+                    foo: 'bar',
+                },
+            },
+        ],
+    ])('should not track events by default', async (event: Event) => {
+        const analytics = jest.spyOn(window as any, 'analytics');
+
+        const logger = createLoggerMock();
+        const tracker = createTrackerMock();
+
+        let listener: (event: EventInfo) => void = jest.fn();
+        tracker.addListener = jest.fn().mockImplementation(callback => {
+            listener = callback;
+        });
+
+        const options: Options = {
+            variable: 'analytics',
+            category: 'Croct',
+            events: {},
+        };
+
+        const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+        await plugin.enable();
+
+        listener({
+            context: {
+                tabId: 'tab-id',
+                url: 'http://analytics.com',
+            },
+            event: event,
+            timestamp: 0,
+            status: 'confirmed',
+        });
+
+        expect(analytics).not.toHaveBeenCalled();
     });
 
     test.each<[string, string, number|undefined, Event]>([
@@ -122,7 +227,7 @@ describe('A Google Analytics plugin', () => {
             },
         ],
     ])(
-        'should track an event with label %s by default',
+        'should track whitelisted event %s',
         async (label: string, name: string, value: number|undefined, event: Event) => {
             const analytics = jest.spyOn(window as any, 'analytics');
 
@@ -137,7 +242,11 @@ describe('A Google Analytics plugin', () => {
             const options: Options = {
                 variable: 'analytics',
                 category: 'foo',
-                events: {},
+                events: {
+                    testGroupAssigned: true,
+                    goalCompleted: true,
+                    eventOccurred: true,
+                },
             };
 
             const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -164,16 +273,14 @@ describe('A Google Analytics plugin', () => {
         },
     );
 
-    test.each<[string, Event]>([
+    test.each<[Event]>([
         [
-            'goalCompleted',
             {
                 type: 'goalCompleted',
                 goalId: 'someGoal',
             },
         ],
         [
-            'goalCompleted',
             {
                 type: 'goalCompleted',
                 goalId: 'someGoal',
@@ -182,7 +289,6 @@ describe('A Google Analytics plugin', () => {
             },
         ],
         [
-            'testGroupAssigned',
             {
                 type: 'testGroupAssigned',
                 testId: 'someTest',
@@ -190,7 +296,6 @@ describe('A Google Analytics plugin', () => {
             },
         ],
         [
-            'eventOccurred',
             {
                 type: 'eventOccurred',
                 name: 'personalizationApplied',
@@ -204,7 +309,6 @@ describe('A Google Analytics plugin', () => {
             },
         ],
         [
-            'eventOccurred',
             {
                 type: 'eventOccurred',
                 name: 'personalizationApplied',
@@ -214,7 +318,7 @@ describe('A Google Analytics plugin', () => {
                 },
             },
         ],
-    ])('should not track event %s if not whitelisted', async (name: string, event: Event) => {
+    ])('should not track blacklisted event %s', async (event: Event) => {
         const analytics = jest.spyOn(window as any, 'analytics');
 
         const logger = createLoggerMock();
@@ -227,7 +331,7 @@ describe('A Google Analytics plugin', () => {
 
         const options: Options = {
             variable: 'analytics',
-            category: 'foo',
+            category: 'Croct',
             events: {
                 testGroupAssigned: false,
                 goalCompleted: false,
@@ -249,8 +353,168 @@ describe('A Google Analytics plugin', () => {
             status: 'confirmed',
         });
 
-        expect(analytics).not.toHaveBeenCalledWith('send', 'event', 'foo', name, expect.anything());
+        expect(analytics).not.toHaveBeenCalled();
     });
+
+    test(
+        'should track all custom events if eventOccurred is whitelisted and no custom events are specified',
+        async () => {
+            const analytics = jest.spyOn(window as any, 'analytics');
+            const logger = createLoggerMock();
+            const tracker = createTrackerMock();
+
+            let listener: (event: EventInfo) => void = jest.fn();
+            tracker.addListener = jest.fn().mockImplementation(callback => {
+                listener = callback;
+            });
+
+            const options: Options = {
+                variable: 'analytics',
+                category: 'Croct',
+                events: {
+                    eventOccurred: true,
+                },
+            };
+
+            const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+            await plugin.enable();
+
+            listener(FOO_EVENT);
+            listener(BAR_EVENT);
+
+            expect(analytics).toHaveBeenCalledTimes(2);
+            expect(analytics).toHaveBeenNthCalledWith(1, 'send', 'event', 'Croct', 'foo', expect.anything());
+            expect(analytics).toHaveBeenNthCalledWith(2, 'send', 'event', 'Croct', 'bar', expect.anything());
+        },
+    );
+
+    test('should track only the specified custom events', async () => {
+        const analytics = jest.spyOn(window as any, 'analytics');
+        const logger = createLoggerMock();
+        const tracker = createTrackerMock();
+
+        let listener: (event: EventInfo) => void = jest.fn();
+        tracker.addListener = jest.fn().mockImplementation(callback => {
+            listener = callback;
+        });
+
+        const options: Options = {
+            variable: 'analytics',
+            category: 'Croct',
+            events: {
+                eventOccurred: true,
+            },
+            customEvents: {
+                foo: true,
+            },
+        };
+
+        const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+        await plugin.enable();
+
+        listener(FOO_EVENT);
+        listener(BAR_EVENT);
+
+        expect(analytics).toHaveBeenCalledTimes(1);
+        expect(analytics).toHaveBeenCalledWith('send', 'event', 'Croct', 'foo', expect.anything());
+        expect(analytics).not.toHaveBeenCalledWith('send', 'event', 'Croct', 'bar', expect.anything());
+    });
+
+    test('should not track custom events if eventOccurred is blacklisted', async () => {
+        const analytics = jest.spyOn(window as any, 'analytics');
+        const logger = createLoggerMock();
+        const tracker = createTrackerMock();
+
+        let listener: (event: EventInfo) => void = jest.fn();
+        tracker.addListener = jest.fn().mockImplementation(callback => {
+            listener = callback;
+        });
+
+        const options: Options = {
+            variable: 'analytics',
+            category: 'Croct',
+            events: {
+                eventOccurred: false,
+            },
+        };
+
+        const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+        await plugin.enable();
+
+        listener(FOO_EVENT);
+        listener(BAR_EVENT);
+
+        expect(analytics).not.toHaveBeenCalled();
+    });
+
+    test(
+        'should not track custom events if eventOccurred is blacklisted, even if custom events are specified',
+        async () => {
+            const analytics = jest.spyOn(window as any, 'analytics');
+            const logger = createLoggerMock();
+            const tracker = createTrackerMock();
+
+            let listener: (event: EventInfo) => void = jest.fn();
+            tracker.addListener = jest.fn().mockImplementation(callback => {
+                listener = callback;
+            });
+
+            const options: Options = {
+                variable: 'analytics',
+                category: 'Croct',
+                events: {
+                    eventOccurred: false,
+                },
+                customEvents: {
+                    foo: true,
+                },
+            };
+
+            const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+            await plugin.enable();
+
+            listener(FOO_EVENT);
+            listener(BAR_EVENT);
+
+            expect(analytics).not.toHaveBeenCalled();
+        },
+    );
+
+    test(
+        'should not track custom events if eventOccurred is not whitelisted, even if custom events are specified',
+        async () => {
+            const analytics = jest.spyOn(window as any, 'analytics');
+            const logger = createLoggerMock();
+            const tracker = createTrackerMock();
+
+            let listener: (event: EventInfo) => void = jest.fn();
+            tracker.addListener = jest.fn().mockImplementation(callback => {
+                listener = callback;
+            });
+
+            const options: Options = {
+                variable: 'analytics',
+                category: 'Croct',
+                events: {},
+                customEvents: {
+                    foo: true,
+                },
+            };
+
+            const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+            await plugin.enable();
+
+            listener(FOO_EVENT);
+            listener(BAR_EVENT);
+
+            expect(analytics).not.toHaveBeenCalled();
+        },
+    );
 
     test('should track confirmed events only', async () => {
         const analytics = jest.spyOn(window as any, 'analytics');
@@ -266,7 +530,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'analytics',
             category: 'Croct',
-            events: {},
+            events: {goalCompleted: true},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -306,7 +570,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'analytics',
             category: 'foo',
-            events: {},
+            events: {goalCompleted: true},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
@@ -355,7 +619,7 @@ describe('A Google Analytics plugin', () => {
         const options: Options = {
             variable: 'bar',
             category: 'foo',
-            events: {},
+            events: {goalCompleted: true},
         };
 
         const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);

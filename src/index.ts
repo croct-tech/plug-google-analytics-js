@@ -13,6 +13,7 @@ croct.extend('googleAnalytics', ({options, sdk}: PluginArguments<Partial<Options
 
     return new GoogleAnalyticsPlugin(
         {
+            ...options,
             variable: options.variable ?? 'ga',
             category: options.category ?? 'Croct',
             events: options.events ?? {},
