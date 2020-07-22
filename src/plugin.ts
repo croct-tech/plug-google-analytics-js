@@ -1,13 +1,11 @@
 import {Logger} from '@croct/plug/sdk';
-import {EventType} from '@croct/plug/sdk/event';
-import {EventInfo, Tracker} from '@croct/plug/sdk/tracking';
+import {EventInfo, Tracker, TrackingEvent, TrackingEventType} from '@croct/plug/sdk/tracking';
 import {ObjectType, StringType, BooleanType} from '@croct/plug/sdk/validation';
 import {Plugin} from '@croct/plug/plugin';
-import {Event} from '@croct/sdk/event';
 
 type Send = (command: string, hitType: string, category: string, action: string, label: string, value?: number) => {};
 
-type ListenedEvent = Extract<EventType, 'testGroupAssigned' | 'goalCompleted' | 'eventOccurred'>
+type ListenedEvent = Extract<TrackingEventType, 'testGroupAssigned' | 'goalCompleted' | 'eventOccurred'>
 
 export type Options = {
     variable: string,
@@ -106,7 +104,7 @@ export default class GoogleAnalyticsPlugin implements Plugin {
         }
     }
 
-    private isWhitelisted(event: Event): boolean {
+    private isWhitelisted(event: TrackingEvent): boolean {
         const {events, customEvents} = {...this.options, events: this.options.events ?? {}};
 
         if (event.type !== 'eventOccurred') {
