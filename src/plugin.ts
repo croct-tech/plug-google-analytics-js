@@ -5,14 +5,14 @@ import {Plugin} from '@croct/plug/plugin';
 
 type Send = (command: string, hitType: string, category: string, action: string, label: string, value?: number) => {};
 
-type ListenedEvent = Extract<TrackingEventType, 'testGroupAssigned' | 'goalCompleted' | 'eventOccurred'>
+type ListenedEvent = Extract<TrackingEventType, 'testGroupAssigned' | 'goalCompleted' | 'eventOccurred'>;
 
 export type Options = {
     variable: string,
     category: string,
     events: {[key in ListenedEvent]?: boolean},
     customEvents?: {[key: string]: boolean},
-}
+};
 
 export const optionsSchema = new ObjectType({
     properties: {
