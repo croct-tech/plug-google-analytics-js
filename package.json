@@ -34,25 +34,25 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@croct/plug": "^0.4.0",
-    "tslib": "^2.0.0"
+    "@croct/plug": "^0.6.2",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-typescript": "^7.9.0",
-    "@types/jest": "^24.0.15",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-typescript": "^7.12.7",
+    "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
-    "babel-jest": "^26.0.1",
-    "eslint": "^6.8.0",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.17.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jest": "^23.7.0",
-    "jest": "^25.1.0",
+    "jest": "^26.6.3",
     "jest-extended": "^0.11.5",
-    "ts-jest": "^25.2.0",
-    "typescript": "^3.9.2"
+    "ts-jest": "^26.4.4",
+    "typescript": "^3.9.7"
   },
   "files": [
     "*.js",
