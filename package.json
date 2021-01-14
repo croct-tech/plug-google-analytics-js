@@ -33,8 +33,10 @@
     "validate": "tsc --noEmit",
     "build": "tsc"
   },
+  "peerDependencies": {
+    "@croct/plug": "^0.6.2"
+  },
   "dependencies": {
-    "@croct/plug": "^0.6.2",
     "tslib": "^2.1.0"
   },
   "devDependencies": {
