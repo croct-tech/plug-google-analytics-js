@@ -703,7 +703,7 @@ describe('A Google Analytics plugin', () => {
         expect(logger.error).toHaveBeenCalledWith('The analytics.js variable "bar" is undefined.');
     });
 
-    test('should log an error if some error occurs while sending events to Google Analytics', async () => {
+    test('should log errors that occur while sending events to Google Analytics', async () => {
         const logger = createLoggerMock();
         const tracker = createTrackerMock();
 
