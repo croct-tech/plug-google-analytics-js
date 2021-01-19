@@ -702,4 +702,45 @@ describe('A Google Analytics plugin', () => {
 
         expect(logger.error).toHaveBeenCalledWith('The analytics.js variable "bar" is undefined.');
     });
+
+    test('should log an error if some error occurs while sending events to Google Analytics', async () => {
+        const logger = createLoggerMock();
+        const tracker = createTrackerMock();
+
+        let listener: (event: EventInfo) => void = jest.fn();
+        tracker.addListener = jest.fn().mockImplementation(callback => {
+            listener = callback;
+        });
+
+        const options: Options = {
+            variable: 'ga',
+            category: 'Croct',
+            events: {goalCompleted: true},
+        };
+
+        const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+        await plugin.enable();
+
+        jest.spyOn(window, 'ga').mockImplementation(() => {
+            throw new Error('Unexpected error.');
+        });
+
+        listener({
+            context: {
+                tabId: 'tab-id',
+                url: 'http://analytics.com',
+            },
+            event: {
+                type: 'goalCompleted',
+                goalId: 'someGoal',
+            },
+            timestamp: 0,
+            status: 'confirmed',
+        });
+
+        expect(logger.error).toHaveBeenCalledWith(
+            'Failed to send event "goalCompleted" to Google Analytics: unexpected error.',
+        );
+    });
 });

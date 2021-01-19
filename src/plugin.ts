@@ -127,6 +127,8 @@ export default class GoogleAnalyticsPlugin implements Plugin {
 
         if (analytics === undefined) {
             this.logger.error(`The analytics.js variable "${this.options.variable}" is undefined.`);
+
+            return;
         }
 
         const fields: Array<string|number> = [this.options.category, action, label];
