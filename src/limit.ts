@@ -1,0 +1,43 @@
+type Callback = (...args: any[]) => any;
+
+/**
+ * Limits the number of call at a given rate.
+ *
+ * The value passed to the argument wait limits the maximum rate for function calls.
+ * For example, passing 500ms causes the function to be called at most one time per
+ * 500ms – or two times per second.
+ *
+ * Note that calls are queued for execution but never ignored.
+ *
+ * @param callback The callback to call.
+ * @param wait The time to wait between calls, in milliseconds.
+ */
+export function limit<C extends Callback>(callback: C, wait: number): (...args: Parameters<C>) => void {
+    const queue: Callback[] = [];
+    let timer: number|undefined;
+
+    const next = (): void => {
+        if (timer !== undefined) {
+            return;
+        }
+
+        const execute = queue.shift();
+
+        if (execute !== undefined) {
+            execute();
+
+            timer = window.setTimeout(
+                () => {
+                    timer = undefined;
+                    next();
+                },
+                wait,
+            );
+        }
+    };
+
+    return function bound(this: any, ...args: Parameters<C>): void {
+        queue.push(callback.bind(this, ...args));
+        next();
+    };
+}
