@@ -42,6 +42,7 @@ croct.plug({
     plugins: {
         googleAnalytics: {
             category: 'Croct',
+            rateLimit: 1000,
             events: {
                 eventOccurred: true,
                 testGroupAssigned: false,
@@ -53,6 +54,14 @@ croct.plug({
     }
 });
 ```
+
+Notice that all Analytics libraries implement a [rate-limiting mechanism](https://developers.google.com/analytics/devguides/collection/protocol/v1/limits-quotas) 
+that ensures you don't send too many hits at once, meaning that some events can be lost. The "rateLimit" option 
+allows you to limit the maximum number of hits in a given interval. For example, passing 500ms causes the function 
+to be called at most one time per 500ms – or two times per second.
+
+Note that although calls are queued for execution but never ignored, events can still be lost if the user leaves 
+the page before all events are sent to Analytics.
 
 ## Contributing
 Contributions to the package are always welcome! 

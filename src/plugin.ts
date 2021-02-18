@@ -2,12 +2,14 @@ import {Logger} from '@croct/plug/sdk';
 import {EventInfo, Tracker, TrackingEvent, TrackingEventType} from '@croct/plug/sdk/tracking';
 import {ObjectType, StringType, BooleanType, formatCause} from '@croct/plug/sdk/validation';
 import {Plugin} from '@croct/plug/plugin';
+import {limit} from './limit';
 
 type ListenedEvent = Extract<TrackingEventType, 'testGroupAssigned' | 'goalCompleted' | 'eventOccurred'>;
 
 export type Options = {
     variable: string,
     category: string,
+    rateLimit?: number,
     events: {[key in ListenedEvent]?: boolean},
     customEvents?: {[key: string]: boolean},
 };
@@ -47,6 +49,10 @@ export default class GoogleAnalyticsPlugin implements Plugin {
         this.tracker = tracker;
         this.logger = logger;
         this.track = this.track.bind(this);
+
+        if (options.rateLimit !== undefined && options.rateLimit > 0) {
+            this.send = limit(this.send.bind(this), options.rateLimit);
+        }
     }
 
     public enable(): void {
@@ -148,3 +154,4 @@ export default class GoogleAnalyticsPlugin implements Plugin {
         this.logger.debug(`Event "${action}" sent to Google Analytics.`);
     }
 }
+

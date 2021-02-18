@@ -11,6 +11,8 @@ type AnalyticsMock = {
     getAll(): TrackerMock[],
 };
 
+jest.useFakeTimers();
+
 beforeEach(() => {
     const analytics: AnalyticsMock = jest.fn(callback => callback()) as any;
     analytics.getAll = jest.fn().mockReturnValue([
@@ -95,6 +97,75 @@ describe('A Google Analytics plugin', () => {
         expect(logger.debug).toHaveBeenCalledWith('Event "goalCompleted" sent to Google Analytics.');
         expect(firstGaTracker.send).toHaveBeenCalledWith('event', 'Croct', 'goalCompleted', 'goalId: someGoal', 1.2);
         expect(secondGaTracker.send).toHaveBeenCalledWith('event', 'Croct', 'goalCompleted', 'goalId: someGoal', 1.2);
+    });
+
+    test('should respect the specified rate limit', async () => {
+        const logger = createLoggerMock();
+        const tracker = createTrackerMock();
+
+        let listener: (event: EventInfo) => void = jest.fn();
+        tracker.addListener = jest.fn().mockImplementation(callback => {
+            listener = callback;
+        });
+
+        const options: Options = {
+            variable: 'ga',
+            rateLimit: 1000,
+            category: 'Croct',
+            events: {goalCompleted: true},
+        };
+
+        const plugin = new GoogleAnalyticsPlugin(options, tracker, logger);
+
+        await plugin.enable();
+
+        const firstEvent: ExternalTrackingEvent<'goalCompleted'> = {
+            type: 'goalCompleted',
+            goalId: 'firstGoal',
+            value: 1,
+        };
+
+        const secondEvent: ExternalTrackingEvent<'goalCompleted'> = {
+            type: 'goalCompleted',
+            goalId: 'secondGoal',
+            value: 2,
+        };
+
+        listener({
+            context: {
+                tabId: 'tab-id',
+                url: 'http://analytics.com',
+            },
+            timestamp: 0,
+            event: firstEvent,
+            status: 'confirmed',
+        });
+
+        listener({
+            context: {
+                tabId: 'tab-id',
+                url: 'http://analytics.com',
+            },
+            timestamp: 0,
+            event: secondEvent,
+            status: 'confirmed',
+        });
+
+        const [gaTracker] = window.ga.getAll();
+
+        expect(logger.debug).toBeCalledTimes(1);
+        expect(logger.debug).toHaveBeenLastCalledWith('Event "goalCompleted" sent to Google Analytics.');
+
+        expect(gaTracker.send).toBeCalledTimes(1);
+        expect(gaTracker.send).toHaveBeenLastCalledWith('event', 'Croct', 'goalCompleted', 'goalId: firstGoal', 1);
+
+        jest.advanceTimersByTime(1000);
+
+        expect(logger.debug).toBeCalledTimes(2);
+        expect(logger.debug).toHaveBeenLastCalledWith('Event "goalCompleted" sent to Google Analytics.');
+
+        expect(gaTracker.send).toBeCalledTimes(2);
+        expect(gaTracker.send).toHaveBeenLastCalledWith('event', 'Croct', 'goalCompleted', 'goalId: secondGoal', 2);
     });
 
     test('should use the default variable and category to track events if they are not specified', async () => {
