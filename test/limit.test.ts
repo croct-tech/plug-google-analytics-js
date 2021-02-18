@@ -4,7 +4,7 @@ import {limit} from '../src/limit';
 jest.useFakeTimers();
 
 describe('A limiter function', () => {
-    test('should enqueue calls to respect specified rate limit', () => {
+    test('should enqueue calls to respect the specified rate limit', () => {
         const callback = jest.fn();
         const limitedCallback = limit(callback, 100);
 
@@ -46,6 +46,7 @@ describe('A limiter function', () => {
         expect(callback).toHaveBeenLastCalledWith('i', 'j');
 
         // No pending calls again
+
         jest.advanceTimersByTime(100);
 
         expect(callback).toBeCalledTimes(5);

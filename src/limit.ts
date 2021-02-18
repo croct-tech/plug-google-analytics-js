@@ -16,28 +16,28 @@ export function limit<C extends Callback>(callback: C, wait: number): (...args: 
     const queue: Callback[] = [];
     let timer: number|undefined;
 
-    const next = (): void => {
+    const dequeue = (): void => {
         if (timer !== undefined) {
             return;
         }
 
-        const execute = queue.shift();
+        const next = queue.shift();
 
-        if (execute !== undefined) {
-            execute();
+        if (next !== undefined) {
+            next();
 
             timer = window.setTimeout(
                 () => {
                     timer = undefined;
-                    next();
+                    dequeue();
                 },
                 wait,
             );
         }
     };
 
-    return function bound(this: any, ...args: Parameters<C>): void {
+    return function enqueue(this: any, ...args: Parameters<C>): void {
         queue.push(callback.bind(this, ...args));
-        next();
+        dequeue();
     };
 }
